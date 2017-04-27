@@ -260,6 +260,11 @@ public class MetascopeTableService {
         return LineageUtil.getDependencyGraph(table);
     }
 
+    @Transactional
+    public String getSchemaLineage(MetascopeTable table) {
+        return LineageUtil.getSchemaLineageJson(table);
+    }
+
     @Async
     @Transactional
     public Future<HiveQueryResult> getSample(String fqdn, Map<String, String> params) {

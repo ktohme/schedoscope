@@ -93,6 +93,7 @@
                                 <li><a href="#dependencyContent">Dependency</a></li>
                                 <li data-th-if="${admin}"><a href="#adminContent">Administration</a></li>
                             </ul>
+                            <li><a href="/table/test/lineage">Schema Lineage</a></li>
                         </div>
 
                         <!-- Content -->
@@ -108,8 +109,7 @@
                                 <div data-th-replace="body/table/sections/storage :: storage(${table}, ${util})"></div>
                                 <div data-th-replace="body/table/sections/transformation :: transformation(${table}, ${util})"></div>
                                 <div data-th-replace="body/table/sections/dependency :: dependency(${table}, ${util})"></div>
-                                <div data-th-if="${admin}"
-                                     data-th-replace="body/table/sections/admin :: admin(${table}, ${util})"></div>
+                                <div data-th-if="${admin}" data-th-replace="body/table/sections/admin :: admin(${table}, ${util})"></div>
                             </div>
                         </div>
                     </div>

@@ -311,6 +311,35 @@ public class MetascopeTableController {
     return metascopeTableService.getLineage(table);
   }
 
+
+  @RequestMapping(value = "/table/test/lineage", method = RequestMethod.GET)
+  public ModelAndView showSchemaLineage(String fqdn) {
+    ModelAndView mav = new ModelAndView("body/lineage");
+    mav.addObject("admin", metascopeUserService.isAdmin());
+    mav.addObject("userMgmnt", config.withUserManagement());
+    mav.addObject("userEntityService", metascopeUserService);
+    return mav;
+  }
+
+
+  /**
+   * Returns a JSON for schema lineage graph
+   *
+   * @param fqdn the table for which the lineage graph is requesed
+   * @return JSON string containg schema lineage information
+   */
+  @RequestMapping(value = "/table/schema/lineage", method = RequestMethod.GET)
+  @ResponseBody
+  public String getSchemaLineage(String fqdn) {
+    MetascopeTable table = metascopeTableService.findByFqdn(fqdn);
+
+    if (table == null) {
+      return "table not found";
+    }
+
+    return metascopeTableService.getSchemaLineage(table);
+  }
+
   /**
    * Returns the lineage detail when a node is selected in the lineage graph
    *
