@@ -15,12 +15,18 @@
  */
 package org.schedoscope.metascope.util;
 
+import com.cloudera.com.fasterxml.jackson.core.JsonProcessingException;
+import com.cloudera.com.fasterxml.jackson.databind.ObjectMapper;
+import org.schedoscope.metascope.model.MetascopeField;
 import org.schedoscope.metascope.model.MetascopeTable;
 import org.schedoscope.metascope.util.model.Node;
 
+import javax.xml.validation.Schema;
 import java.util.*;
 
 public class LineageUtil {
+
+    private static ObjectMapper jsonMapper = new ObjectMapper();
 
     public static String getDependencyGraph(MetascopeTable table) {
         List<Node> topLevelNodes = getTopLevelNodes(table, 0);
@@ -133,6 +139,148 @@ public class LineageUtil {
         nodes += "],";
         edges += "]}";
         return nodes + edges;
+    }
+
+    public static String getSchemaLineageJson(MetascopeTable table) {
+        SchemaLineage schemaLineage = new SchemaLineage();
+
+        List<SchemaLineageEdge> forwardEdges = new ArrayList<>();
+        List<SchemaLineageEdge> backwardEdges = new ArrayList<>();
+
+        for (MetascopeField metascopeField : table.getFields()) {
+            forwardSchemaLineage(metascopeField, forwardEdges);
+        }
+
+        for (SchemaLineageEdge forwardEdge : forwardEdges) {
+            System.out.println(forwardEdge.from.getId() + " -> " + forwardEdge.to.getId());
+        }
+
+        for (MetascopeField metascopeField : table.getFields()) {
+            backwardSchemaLineage(metascopeField, backwardEdges);
+        }
+
+        System.out.println("____");
+        for (SchemaLineageEdge backwardEdge : backwardEdges) {
+            System.out.println(backwardEdge.from.getId() + " -> " + backwardEdge.to.getId());
+        }
+
+        schemaLineage.setForwardEdges(forwardEdges);
+        schemaLineage.setBackwardEdges(backwardEdges);
+
+        try {
+            return jsonMapper.writeValueAsString(schemaLineage);
+        } catch (JsonProcessingException e) {
+            return "505 Internal Server Error";
+        }
+    }
+
+    private static void forwardSchemaLineage(MetascopeField mField, List<SchemaLineageEdge> nodes) {
+        for (MetascopeField field : mField.getSuccessors()) {
+            SchemaLineageNode from = new SchemaLineageNode(mField.getFieldId(), mField.getFieldName(), mField.getTable().getFqdn());
+            SchemaLineageNode to = new SchemaLineageNode(field.getFieldId(), field.getFieldName(), field.getTable().getFqdn());
+            SchemaLineageEdge edge = new SchemaLineageEdge(from, to);
+            nodes.add(edge);
+            forwardSchemaLineage(field, nodes);
+        }
+    }
+
+    private static void backwardSchemaLineage(MetascopeField mField, List<SchemaLineageEdge> nodes) {
+        for (MetascopeField field : mField.getDependencies()) {
+            SchemaLineageNode from = new SchemaLineageNode(mField.getFieldId(), mField.getFieldName(), mField.getTable().getFqdn());
+            SchemaLineageNode to = new SchemaLineageNode(field.getFieldId(), field.getFieldName(), field.getTable().getFqdn());
+            SchemaLineageEdge edge = new SchemaLineageEdge(from, to);
+            nodes.add(edge);
+            backwardSchemaLineage(field, nodes);
+        }
+    }
+
+    private static class SchemaLineage {
+
+        private List forwardEdges;
+        private List backwardEdges;
+
+        public void setForwardEdges(List forwardEdges) {
+            this.forwardEdges = forwardEdges;
+        }
+
+        public void setBackwardEdges(List backwardEdges) {
+            this.backwardEdges = backwardEdges;
+        }
+
+        public List getForwardEdges() {
+            return forwardEdges;
+        }
+
+        public List getBackwardEdges() {
+            return backwardEdges;
+        }
+
+    }
+
+    private static class SchemaLineageEdge {
+
+        private SchemaLineageNode from;
+        private SchemaLineageNode to;
+
+        public SchemaLineageEdge(SchemaLineageNode from, SchemaLineageNode to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        public void setFrom(SchemaLineageNode from) {
+            this.from = from;
+        }
+
+        public void setTo(SchemaLineageNode to) {
+            this.to = to;
+        }
+
+        public SchemaLineageNode getFrom() {
+            return from;
+        }
+
+        public SchemaLineageNode getTo() {
+            return to;
+        }
+
+    }
+
+    private static class SchemaLineageNode {
+
+        private String id;
+        private String label;
+        private String parent;
+
+        public SchemaLineageNode(String id, String label, String parent) {
+            this.id = id;
+            this.label = label;
+            this.parent = parent;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
+        }
+
+        public void setParent(String parent) {
+            this.parent = parent;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public String getParent() {
+            return parent;
+        }
+
     }
 
 }
