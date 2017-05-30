@@ -40,6 +40,7 @@ public class RawJDBCSqlRepository {
     }
 
     public void insertOrUpdateViews(Connection connection, Iterable<MetascopeView> views) {
+        String deleteQuery = "delete from metascope_view";
         String insertViewSql = "insert into metascope_view (view_id, view_url, parameter_string, table_fqdn) values "
                 + "(?, ?, ?, ?) on duplicate key update view_id=values(view_id), view_url=values(view_url), "
                 + "parameter_string=values(parameter_string), table_fqdn=values(table_fqdn)";
@@ -47,6 +48,11 @@ public class RawJDBCSqlRepository {
         try {
             int batch = 0;
             disableChecks(connection);
+
+            Statement deleteStmt = connection.createStatement();
+            deleteStmt.execute(deleteQuery);
+            deleteStmt.close();
+
             stmt = connection.prepareStatement(insertViewSql);
             for (MetascopeView viewEntity : views) {
                 stmt.setString(1, viewEntity.getViewId());
@@ -69,59 +75,71 @@ public class RawJDBCSqlRepository {
         }
     }
 
-  public void insertFieldDependencies(Connection connection, List<FieldDependency> fieldDependencies) {
-    String sql = "insert into metascope_field_relationship (successor, dependency) values (?, ?) "
-            + "on duplicate key update successor=values(successor), dependency=values(dependency)";
-    PreparedStatement stmt = null;
-    try {
-      int batch = 0;
-      disableChecks(connection);
-      stmt = connection.prepareStatement(sql);
-      for (FieldDependency fieldDependency : fieldDependencies) {
-        stmt.setString(1, fieldDependency.getDependency());
-        stmt.setString(2, fieldDependency.getSuccessor());
-        stmt.addBatch();
-        batch++;
-        if (batch % 1024 == 0) {
-          stmt.executeBatch();
-        }
-      }
-      stmt.executeBatch();
-      connection.commit();
-      enableChecks(connection);
-    } catch (SQLException e) {
-      LOG.error("Could not save view", e);
-    } finally {
-      DbUtils.closeQuietly(stmt);
-    }
-  }
+    public void insertFieldDependencies(Connection connection, List<FieldDependency> fieldDependencies) {
+        String deleteQuery = "delete from metascope_field_relationship";
+        String sql = "insert into metascope_field_relationship (successor, dependency) values (?, ?) "
+                + "on duplicate key update successor=values(successor), dependency=values(dependency)";
+        PreparedStatement stmt = null;
+        try {
+            int batch = 0;
+            disableChecks(connection);
 
-  public void insertViewDependencies(Connection connection, List<ViewDependency> viewDependencies) {
-    String sql = "insert into metascope_view_relationship (successor, dependency) values (?, ?) "
-            + "on duplicate key update successor=values(successor), dependency=values(dependency)";
-    PreparedStatement stmt = null;
-    try {
-      int batch = 0;
-      disableChecks(connection);
-      stmt = connection.prepareStatement(sql);
-      for (ViewDependency viewDependency : viewDependencies) {
-        stmt.setString(1, viewDependency.getDependency());
-        stmt.setString(2, viewDependency.getSuccessor());
-        stmt.addBatch();
-        batch++;
-        if (batch % 1024 == 0) {
-          stmt.executeBatch();
+            Statement deleteStmt = connection.createStatement();
+            deleteStmt.execute(deleteQuery);
+            deleteStmt.close();
+
+            stmt = connection.prepareStatement(sql);
+            for (FieldDependency fieldDependency : fieldDependencies) {
+                stmt.setString(1, fieldDependency.getDependency());
+                stmt.setString(2, fieldDependency.getSuccessor());
+                stmt.addBatch();
+                batch++;
+                if (batch % 1024 == 0) {
+                    stmt.executeBatch();
+                }
+            }
+            stmt.executeBatch();
+            connection.commit();
+            enableChecks(connection);
+        } catch (SQLException e) {
+            LOG.error("Could not save view", e);
+        } finally {
+            DbUtils.closeQuietly(stmt);
         }
-      }
-      stmt.executeBatch();
-      connection.commit();
-      enableChecks(connection);
-    } catch (SQLException e) {
-      LOG.error("Could not save view", e);
-    } finally {
-      DbUtils.closeQuietly(stmt);
     }
-  }
+
+    public void insertViewDependencies(Connection connection, List<ViewDependency> viewDependencies) {
+        String deleteQuery = "delete from metascope_view_relationship";
+        String sql = "insert into metascope_view_relationship (successor, dependency) values (?, ?) "
+                + "on duplicate key update successor=values(successor), dependency=values(dependency)";
+        PreparedStatement stmt = null;
+        try {
+            int batch = 0;
+            disableChecks(connection);
+
+            Statement deleteStmt = connection.createStatement();
+            deleteStmt.execute(deleteQuery);
+            deleteStmt.close();
+
+            stmt = connection.prepareStatement(sql);
+            for (ViewDependency viewDependency : viewDependencies) {
+                stmt.setString(1, viewDependency.getDependency());
+                stmt.setString(2, viewDependency.getSuccessor());
+                stmt.addBatch();
+                batch++;
+                if (batch % 1024 == 0) {
+                    stmt.executeBatch();
+                }
+            }
+            stmt.executeBatch();
+            connection.commit();
+            enableChecks(connection);
+        } catch (SQLException e) {
+            LOG.error("Could not save view", e);
+        } finally {
+            DbUtils.closeQuietly(stmt);
+        }
+    }
 
     public void updateStatus(Connection connection, Iterable<MetascopeView> views) {
         String updateStatus = "update metascope_view set last_transformation=?, total_size=?, num_rows=? where view_id = ?";

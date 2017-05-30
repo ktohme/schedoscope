@@ -24,7 +24,7 @@ Get a glance at
 
 - [Schedoscope's features](https://github.com/ottogroup/schedoscope/wiki/Schedoscope-at-a-Glance)
 
-Build it:
+Build it (you currently need to use JDK7 because of the state of Cloudera dependencies):
 
      [~]$ git clone https://github.com/ottogroup/schedoscope.git
      [~]$ cd schedoscope
@@ -76,6 +76,24 @@ We would love to get contributions from you as well. We haven't got a formalized
 Please help making Schedoscope better!
 
 ## News
+
+###### 05/26/2017 - Release 0.8.5
+
+We have released Version 0.8.5 as a Maven artifact to our Bintray repository (see [Setting Up A Schedoscope Project](https://github.com/ottogroup/schedoscope/wiki/Setting-up-a-Schedoscope-Project) for an example pom).
+
+This version adds support for float view fields to JDBC exports
+
+###### 05/24/2017 - Release 0.8.4
+
+We have released Version 0.8.4 as a Maven artifact to our Bintray repository (see [Setting Up A Schedoscope Project](https://github.com/ottogroup/schedoscope/wiki/Setting-up-a-Schedoscope-Project) for an example pom).
+
+This version removes a race condition the file system driver initialization that seems to have been introduced with CDH-5.10. Also, we have changed the way how we delete and recreate output folders for Map/Reduce transformations to avoid Hive partitions pointing to temporarily non-existing folders.
+
+###### 04/24/2017 - Release 0.8.3
+
+We have released Version 0.8.3 as a Maven artifact to our Bintray repository (see [Setting Up A Schedoscope Project](https://github.com/ottogroup/schedoscope/wiki/Setting-up-a-Schedoscope-Project) for an example pom).
+
+This version has been built against Cloudera's CDH 5.10.1 client libraries. The test framework no longer artificially sets the storage formats of views under test to text, making testing of Spark jobs writing Parquet files simpler. The robustness of the Schedoscope HTTP service has been improved in face of invalid view parameters.
 
 ###### 03/24/2017 - Release 0.8.2
 
@@ -178,4 +196,3 @@ The test framework now automatically checks whether there is an `ON` condition f
 
 ## License
 Licensed under the [Apache License 2.0](https://github.com/ottogroup/schedoscope/blob/master/LICENSE)
-
