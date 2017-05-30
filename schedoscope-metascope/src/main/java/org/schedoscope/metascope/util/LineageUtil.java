@@ -151,8 +151,17 @@ public class LineageUtil {
             forwardSchemaLineage(metascopeField, forwardEdges);
         }
 
+        for (SchemaLineageEdge forwardEdge : forwardEdges) {
+            System.out.println(forwardEdge.from.getId() + " -> " + forwardEdge.to.getId());
+        }
+
         for (MetascopeField metascopeField : table.getFields()) {
             backwardSchemaLineage(metascopeField, backwardEdges);
+        }
+
+        System.out.println("____");
+        for (SchemaLineageEdge backwardEdge : backwardEdges) {
+            System.out.println(backwardEdge.from.getId() + " -> " + backwardEdge.to.getId());
         }
 
         schemaLineage.setForwardEdges(forwardEdges);
@@ -177,8 +186,8 @@ public class LineageUtil {
 
     private static void backwardSchemaLineage(MetascopeField mField, List<SchemaLineageEdge> nodes) {
         for (MetascopeField field : mField.getDependencies()) {
-            SchemaLineageNode to = new SchemaLineageNode(mField.getFieldId(), mField.getFieldName(), mField.getTable().getFqdn());
-            SchemaLineageNode from = new SchemaLineageNode(field.getFieldId(), field.getFieldName(), field.getTable().getFqdn());
+            SchemaLineageNode from = new SchemaLineageNode(mField.getFieldId(), mField.getFieldName(), mField.getTable().getFqdn());
+            SchemaLineageNode to = new SchemaLineageNode(field.getFieldId(), field.getFieldName(), field.getTable().getFqdn());
             SchemaLineageEdge edge = new SchemaLineageEdge(from, to);
             nodes.add(edge);
             backwardSchemaLineage(field, nodes);

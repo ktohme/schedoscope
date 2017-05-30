@@ -1,0 +1,51 @@
+#forward-lineage-container {
+    float: left;
+    width: 50%;
+}
+
+#forward-lineage-container > svg {
+    float: right;
+}
+
+#backward-lineage-container {
+    float: right;
+    width: 50%;
+}
+
+#forward-lineage-container + #backward-lineage-container {
+    box-sizing: border-box;
+    border-left: 1px solid black;
+}
+
+g.output {
+    font-family: monospace;
+    font-size: large;
+}
+
+g.output .node.inner {
+    cursor: pointer;
+    fill: #D4021D;
+}
+
+g.output .node.inner:hover {
+    fill: #DC344A;
+}
+
+g.output .node.leaf {
+    cursor: not-allowed;
+    fill: #E56777;
+}
+
+g.output .node text {
+    fill: white;
+}
+
+g.output .edgePath {
+    fill: black;
+    stroke: black;
+    stroke-width: 2px;
+}
+
+g.output .clusters rect {
+    fill: lightblue;
+}
